@@ -111,6 +111,7 @@ Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rent
 
 - Never write people's names, except the team list in `README.md`; use roles (vyučující, PM daného týdne, student).
 - Never copy live uuApp content (vision, roles, PM rota) into the repo; link to it.
+- Commit a lecture transcript only anonymized with `tools/anonymize_transcript.py` (Teacher / Student, no profile photos).
 - Never create `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md`, in the repo or a parent folder; Claude Code would stop reading this file.
 
 ## Git

@@ -65,6 +65,7 @@ docs/
 ├── navrh/                 # original topic proposal (CZ)
 └── rozhodnuti/            # stack and team rules proposal + open questions
 tools/teams_transcript_to_md.py   # prints a .docx transcript as text (for AI)
+tools/anonymize_transcript.py     # anonymizes a Teams transcript before it is committed
 ```
 
 The extracts in `docs/zadani/` are a **snapshot from 10 Oct 2026**. When the school pages change, the web wins – update the extract and its date.

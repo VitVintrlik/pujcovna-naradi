@@ -1,6 +1,6 @@
 # Shrnutí – Konzultace 1, Projektový management (10. 10. 2026)
 
-> Shrnutí přepisu `prepis.docx` (originál z Teams ve stejné složce; text vypíše `python3 tools/teams_transcript_to_md.py docs/prepisy/2026-10-10_PM_Konzultace-1/prepis.docx`). Mluví hlavně vyučující („Speaker 1“), studenti se ptají.
+> Shrnutí přepisu `prepis.docx` (přepis z Teams ve stejné složce, anonymizovaný: vyučující = „Teacher“, studenti = „Student“; text vypíše `python3 tools/teams_transcript_to_md.py docs/prepisy/2026-10-10_PM_Konzultace-1/prepis.docx`). Mluví hlavně vyučující, studenti se ptají.
 > Časy v závorkách = začátek promluvy v přepisu (Teams dává čas jen na začátek promluvy; dlouhé monology vyučující, např. `19:38`–`1:03:17`, pokrývají víc témat).
 > **Pokyny vyučující** (co máme dělat) jsou označené ➜.
 

@@ -1,0 +1,20 @@
+# macOS / Windows / Office zámky
+.DS_Store
+Thumbs.db
+~$*
+
+# Node
+node_modules/
+
+# Tajné klíče a lokální konfigurace (šablonu sdílet jako .env.example)
+.env
+.env.*
+!.env.example
+
+# Editory (osobní nastavení)
+.idea/
+.vscode/
+
+# Build output
+dist/
+*.tsbuildinfo

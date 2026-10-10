@@ -1,0 +1,20 @@
+# Local development database. Proposal: PostgreSQL (open question 4 in docs/rozhodnuti; switching to MySQL = swap this service).
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER:-pujcovna}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pujcovna}
+      POSTGRES_DB: ${DB_NAME:-pujcovna}
+    ports:
+      - '${DB_PORT:-5440}:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-pujcovna} -d ${DB_NAME:-pujcovna}']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  db-data:

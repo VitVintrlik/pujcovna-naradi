@@ -66,6 +66,7 @@ docs/
 └── rozhodnuti/            # stack and team rules proposal + open questions
 tools/teams_transcript_to_md.py   # prints a .docx transcript as text (for AI)
 tools/anonymize_transcript.py     # anonymizes a Teams transcript before it is committed
+tools/xlsx_dump.py                # prints an .xlsx (PBS, capacity plan) as text (for AI)
 ```
 
 The extracts in `docs/zadani/` are a **snapshot from 10 Oct 2026**. When the school pages change, the web wins – update the extract and its date.
@@ -83,6 +84,8 @@ The extracts in `docs/zadani/` are a **snapshot from 10 Oct 2026**. When the sch
 | [`shrnuti-prepisu.md`](docs/ai/shrnuti-prepisu.md) | turn a lecture transcript into a summary |
 | [`kontrola-souladu.md`](docs/ai/kontrola-souladu.md) | does this match the assignment and the teacher's instructions? |
 | [`priprava-pro-uuapp.md`](docs/ai/priprava-pro-uuapp.md) | draft a user story / business use case / endpoint for uuApp |
+| [`planovani-sprintu.md`](docs/ai/planovani-sprintu.md) | plan a sprint: PBS → SprintMan tickets → capacity plan |
+| [`uuapp-api.md`](docs/ai/uuapp-api.md) | call uuApp (SprintMan) commands from the browser: bulk tickets, tags, solvers, attachments |
 
 **Rules for people** – _team proposal (see [`docs/rozhodnuti/`](docs/rozhodnuti/README.md)); valid until the team changes it via PR._
 - Small PRs: one task = one PR.

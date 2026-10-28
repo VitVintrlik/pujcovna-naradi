@@ -26,6 +26,8 @@ packages/server   pomocníci pro backend (chyby, auth)  – používá každá s
 packages/ui       design systém                         – používá apps/web
 ```
 
+Pravidla, podle kterých se v jednotlivých částech píše kód (pro lidi i pro AI), jsou v `AGENTS.md`: kořenový platí pro celé repo, `services/AGENTS.md` pro backend, `apps/web/AGENTS.md` pro frontend a `packages/ui/AGENTS.md` pro design systém.
+
 ### Co stavíme
 
 | | |

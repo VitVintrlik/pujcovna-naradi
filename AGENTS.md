@@ -80,7 +80,7 @@ Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rent
 - Never mutate a parameter, a prop or state; create a new object or array with spread.
 - Use `===` and `!==`, never `==` or `!=`.
 - Return early instead of nesting `if` / `else`.
-- Name a module-level constant in `UPPER_SNAKE_CASE` (`REQUEST_TIMEOUT_MS`); never leave a magic number or string inline.
+- Give a fixed number or string a named constant in `UPPER_SNAKE_CASE` (`REQUEST_TIMEOUT_MS`); never leave a magic number or string inline.
 
 ## Structure
 

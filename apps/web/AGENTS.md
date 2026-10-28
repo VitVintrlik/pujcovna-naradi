@@ -53,4 +53,4 @@
 
 ## Verification
 
-- After `pnpm check` and `pnpm build`, run `pnpm dev`, open the page in a browser and use it with real clicks and typing: the happy path, the loading, error and empty states, and a signed-out visit.
+- After `pnpm check` and `pnpm build`, run `pnpm dev`, open the page in a browser and use it with real clicks and typing: the happy path, the loading, error and empty states, and a signed-out visit

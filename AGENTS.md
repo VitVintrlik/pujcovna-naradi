@@ -57,13 +57,30 @@ Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rent
 
 - Never use `any`; use `unknown`, a type guard or a schema-derived type (`z.infer`).
 - Use `type`, never `interface`.
-- Use arrow functions; use `class` only for errors (`AppError`).
+- Write every function, component and callback as an arrow function; never use the `function` keyword.
+- Use `class` only for errors (`AppError`).
 - Never silence the type checker with `@ts-ignore`, `@ts-expect-error`, `as any` or a non-null `!`.
-- Use `const`; use `let` only for a variable that is reassigned.
+- Use `const`; use `let` only for a variable that is reassigned; never `var`.
 - Write whole words: `request` not `req`, `response` not `res`, `error` not `err`, `index` not `i`.
 - Import a workspace package by its name (`@pujcovna/shared`), never by a relative path into another package.
+- Import a type with `import type`.
 - Derive a type from its Zod schema with `z.infer`; never write the same shape by hand a second time.
-- Model a state or a status as `z.enum([...])`; never a free `string`.
+- Use a string `enum` for states, statuses and roles (`OrderState.Pending = 'PENDING'`) and validate it with `z.enum(OrderState)`; never a free `string`.
+- Never use a `const enum`.
+- Use `as const` only for lookup tables and fixed lists.
+- Name a component's props type `<ComponentName>Props`.
+- Name a boolean with `is`, `has` or `can` (`isRetired`, `hasActiveOrder`, `canCancel`).
+
+## Modern JavaScript
+
+- Use ES modules with named exports; use a default export only where a tool requires one (`vite.config.ts`, `eslint.config.js`).
+- Use `async` / `await`; never chain `.then()`.
+- Use template literals instead of string concatenation.
+- Destructure props and parameters in the function signature.
+- Never mutate a parameter, a prop or state; create a new object or array with spread.
+- Use `===` and `!==`, never `==` or `!=`.
+- Return early instead of nesting `if` / `else`.
+- Name a module-level constant in `UPPER_SNAKE_CASE` (`REQUEST_TIMEOUT_MS`); never leave a magic number or string inline.
 
 ## Structure
 

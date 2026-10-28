@@ -31,6 +31,7 @@
 ## Responses
 
 - Build every response in `<entity>.mapper.ts` with an explicit field mapping; never spread a database row.
+- Convert a Prisma enum value to the shared `enum` in the mapper.
 
 ## Data
 

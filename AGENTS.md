@@ -2,20 +2,26 @@
 
 Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rental web app. Applies to Claude Code, Codex and Cursor.
 
+> Rules only, one per line. Each part of the repo has its own `AGENTS.md` that extends this one and never contradicts it.
+
 ## Context
 
 - Start with `docs/zadani/00-shrnuti.md` – requirements, points, deadlines, rules, known inconsistencies (Czech).
 - `README.md` has the repo map, commands, uuApp links and the team list.
-- The stack and every open decision live in `docs/rozhodnuti/`; it is a team proposal, only what the assignment mandates is fixed.
+- The architecture is `docs/rozhodnuti/2026-10-28-architecture.md`; the other decisions live in `docs/rozhodnuti/`. They are team proposals; only what the assignment mandates is fixed.
+- Before working in a part of the repo, read its `AGENTS.md`: `apps/web/AGENTS.md`, `services/AGENTS.md`, `packages/ui/AGENTS.md`.
+- `packages/server` follows `services/AGENTS.md`.
 
 ## Rule 0
 
 - State nothing as fact you have not verified this session in the repo or in a command's output.
 - When the repo does not contain the answer, say so; never fill the gap with a guess.
+- Verify a library's API against `package.json` and `node_modules` rather than recalling it.
+- When corrected, fix the cause, never the cheapest patch.
 
 ## Language
 
-- Code, identifiers, comments, commits, PRs, `README.md`, `AGENTS.md` and `docs/ai/`: English.
+- Code, identifiers, comments, commits, PRs, `README.md`, every `AGENTS.md` and `docs/ai/`: English.
 - School material stays Czech: `docs/zadani/`, `docs/prepisy/`, `docs/tym/`, `docs/navrh/`, `docs/analyza/` drafts and everything that goes into uuApp.
 - Answer the human in the language they write in.
 
@@ -39,6 +45,7 @@ Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rent
 
 - Never implement a feature that has not been through analysis in the Business Model.
 - When you cannot tell which user story or business use case a task implements, ask.
+- Take field names, validation rules and message texts from the user story and business use case the task implements.
 
 ## Questions about lectures and the assignment
 
@@ -50,39 +57,51 @@ Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rent
 
 - Never use `any`; use `unknown`, a type guard or a schema-derived type (`z.infer`).
 - Use `type`, never `interface`.
-- Use arrow functions; use `class` only for errors (`AppError`).
+- Write every function, component and callback as an arrow function; never use the `function` keyword.
+- Use `class` only for errors (`AppError`).
 - Never silence the type checker with `@ts-ignore`, `@ts-expect-error`, `as any` or a non-null `!`.
-- Use `const`; use `let` only for a variable that is reassigned.
+- Use `const`; use `let` only for a variable that is reassigned; never `var`.
 - Write whole words: `request` not `req`, `response` not `res`, `error` not `err`, `index` not `i`.
 - Import a workspace package by its name (`@pujcovna/shared`), never by a relative path into another package.
+- Import a type with `import type`.
+- Derive a type from its Zod schema with `z.infer`; never write the same shape by hand a second time.
+- Use a string `enum` for states, statuses and roles (`OrderState.Pending = 'PENDING'`) and validate it with `z.enum(OrderState)`; never a free `string`.
+- Never use a `const enum`.
+- Use `as const` only for lookup tables and fixed lists.
+- Name a component's props type `<ComponentName>Props`.
+- Name a boolean with `is`, `has` or `can` (`isRetired`, `hasActiveOrder`, `canCancel`).
+
+## Modern JavaScript
+
+- Use ES modules with named exports; use a default export only where a tool requires one (`vite.config.ts`, `eslint.config.js`).
+- Use `async` / `await`; never chain `.then()`.
+- Use template literals instead of string concatenation.
+- Destructure props and parameters in the function signature.
+- Never mutate a parameter, a prop or state; create a new object or array with spread.
+- Use `===` and `!==`, never `==` or `!=`.
+- Return early instead of nesting `if` / `else`.
+- Give a fixed number or string a named constant in `UPPER_SNAKE_CASE` (`REQUEST_TIMEOUT_MS`); never leave a magic number or string inline.
 
 ## Structure
 
 - Name files `kebab-case.ts`, React component files `PascalCase.tsx`; components and types `PascalCase`, functions, hooks and variables `camelCase`.
-- Put one React component per file.
+- Put one React component per file; `packages/ui/AGENTS.md` names the one exception.
 - Split a function that does several things into named single-purpose functions.
-- Put a type or schema in `packages/shared` only when both the frontend and a service use it.
-- Build an API response with an explicit field mapping, never by spreading a database row.
 - Prefer `map`, `filter`, `??` and optional chaining over loops with mutable accumulators.
+- Extract a repeated I/O sequence into one shared helper.
+- Never hide error handling in a generic `safely()` or `tryOrDefault()` wrapper.
+- Place shared code at the lowest place every consumer can reach; never duplicate it.
 
-## Backend (`services/*`)
+## Contracts (`packages/shared`)
 
-- Copy `services/example` to start a new service; keep its layout: `src/<entity>/<entity>.routes.ts` and `src/<entity>/<entity>.service.ts`.
-- Keep a route handler to parsing input, calling the service function and sending the response.
-- Validate every request body, param and query with a Zod schema before using it.
-- Signal an expected failure with `throw new AppError(code, message)`; the central `errorHandler` turns it into `{ error: { code, message } }`.
-- Read configuration only from the validated `environment` in `src/env.ts`; never read `process.env` anywhere else.
-- Add every new variable to the service's `.env.example` and to the schema in `src/env.ts`.
-- Let a service read and write only its own database; reach another service's data over its HTTP API.
-- Once authentication exists, require it on every route; mark a public route explicitly.
-- Scope every query on user-owned data by the authenticated user's id.
-
-## Frontend (`apps/web`)
-
-- Call the backend only through `src/api/client.ts`, which parses every response with its schema; never call `fetch` in a component.
-- Keep business logic in hooks or pure functions; keep components presentational.
-- Use `useEffect` only for subscriptions, timers and mount-time loading; derive state during render.
-- Render the loading and the error state of every data-driven screen.
+- Define every endpoint once in `packages/shared` with `defineEndpoint()`: `method`, `path` and the Zod schemas `params`, `query`, `body`, `response`.
+- Start a new contract from the contract template.
+- Put a type or schema in `packages/shared` only when both the frontend and a service use it.
+- Keep `packages/shared` to schemas, contracts and `callEndpoint()`; no business logic.
+- Never import `packages/server`, `packages/ui` or any app from `packages/shared`.
+- Call a backend endpoint only through `callEndpoint()` and its contract, from the web app and from another service alike.
+- Keep a contract equal to its Application Model command: dtoIn = `params` / `query` / `body`, dtoOut = `response`, errors = its `AppError` codes.
+- Update every consumer of a changed contract in the same PR.
 
 ## Errors
 
@@ -106,20 +125,24 @@ Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rent
 - For a runtime change run `pnpm dev` and hit the endpoint or open the page; say what you checked.
 - For documentation, verify links and facts against the sources in the repo.
 - Never call a task done while a check fails.
+- Re-diagnose instead of retrying after a fix fails twice.
 
 ## Repo content
 
 - Never write people's names, except the team list in `README.md`; use roles (vyučující, PM daného týdne, student).
 - Never copy live uuApp content (vision, roles, PM rota) into the repo; link to it.
 - Commit a lecture transcript only anonymized with `tools/anonymize_transcript.py` (Teacher / Student, no profile photos).
-- Never create `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md`, in the repo or a parent folder; Claude Code would stop reading this file.
+- Never create `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md`, in the repo or a parent folder; Claude Code would stop reading the `AGENTS.md` files.
 
 ## Git
 
 - Never commit or push without the human's explicit instruction.
 - Never push directly to `main`; never use `--no-verify`.
+- Name a branch after its uuSprintMan ticket, lowercase with hyphens, and create it from a freshly pulled `main`.
+- Title a PR with the ticket name and link the ticket in the PR description.
+- Keep one task in one PR.
 
 ## Changing these rules
 
-- This file changes only through a PR approved by the team.
-- Propose a new rule to the human; never write it into this file yourself.
+- The `AGENTS.md` files change only through a PR approved by the team.
+- Propose a new rule to the human; never write it into an `AGENTS.md` yourself.

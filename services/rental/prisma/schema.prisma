@@ -1,0 +1,80 @@
+// Naming: models and fields are camelCase (as in the persistence-layer draft); tables and columns are snake_case via @map/@@map.
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum equipmentState {
+  AVAILABLE
+  RETIRED
+}
+
+enum orderStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+}
+
+model equipment {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code             String         @unique @db.VarChar(20)
+  name             String         @db.VarChar(100)
+  description      String?        @db.VarChar(1000)
+  state            equipmentState @default(AVAILABLE)
+  // ids from the reference-data database, deliberately without a foreign key
+  categoryId       String         @map("category_id") @db.Uuid
+  pickupLocationId String         @map("pickup_location_id") @db.Uuid
+  orderItems       orderItem[]
+
+  @@index([pickupLocationId, state])
+  @@index([categoryId])
+  @@map("equipment")
+}
+
+model order {
+  id               String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // id from the auth database, deliberately without a foreign key
+  customerId       String      @map("customer_id")
+  customerName     String      @map("customer_name") @db.VarChar(200)
+  customerEmail    String      @map("customer_email") @db.VarChar(320)
+  pickupLocationId String      @map("pickup_location_id") @db.Uuid
+  rentalStartDate  DateTime    @map("rental_start_date") @db.Date
+  rentalEndDate    DateTime    @map("rental_end_date") @db.Date
+  status           orderStatus @default(PENDING)
+  createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  items            orderItem[]
+
+  @@index([customerId])
+  @@map("order")
+}
+
+model orderItem {
+  orderId     String    @map("order_id") @db.Uuid
+  equipmentId String    @map("equipment_id") @db.Uuid
+  order       order     @relation(fields: [orderId], references: [id])
+  equipment   equipment @relation(fields: [equipmentId], references: [id])
+
+  @@id([orderId, equipmentId])
+  @@index([equipmentId])
+  @@map("order_item")
+}
+
+model auditLogEntry {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  actorId    String   @map("actor_id")
+  actorRole  String   @map("actor_role") @db.VarChar(20)
+  action     String   @db.VarChar(100)
+  entityType String   @map("entity_type") @db.VarChar(100)
+  entityId   String   @map("entity_id")
+  details    Json?
+
+  @@index([entityType, entityId])
+  @@map("audit_log_entry")
+}

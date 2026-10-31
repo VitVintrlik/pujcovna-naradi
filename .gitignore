@@ -18,3 +18,6 @@ node_modules/
 # Build output
 dist/
 *.tsbuildinfo
+
+# Prisma generated clients
+**/generated/prisma/

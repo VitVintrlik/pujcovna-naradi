@@ -5,3 +5,6 @@ packages:
 
 onlyBuiltDependencies:
   - esbuild
+  - '@prisma/client'
+  - '@prisma/engines'
+  - prisma

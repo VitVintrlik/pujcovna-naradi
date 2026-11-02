@@ -25,13 +25,22 @@ export const notFoundHandler: RequestHandler = (request) => {
   throw new AppError('NOT_FOUND', `Route ${request.method} ${request.path} does not exist`);
 };
 
-export const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => {
+const isMalformedJson = (error: unknown) =>
+  error instanceof SyntaxError && 'type' in error && error.type === 'entity.parse.failed';
+
+export const errorHandler: ErrorRequestHandler = (error: unknown, _request, response, _next) => {
   const appError =
     error instanceof AppError
       ? error
       : error instanceof ZodError
-        ? new AppError('VALIDATION_FAILED', 'Invalid input', error.issues)
-        : undefined;
+        ? new AppError(
+            'VALIDATION_FAILED',
+            error.issues[0]?.message ?? 'Invalid input',
+            error.issues,
+          )
+        : isMalformedJson(error)
+          ? new AppError('VALIDATION_FAILED', 'Invalid JSON')
+          : undefined;
 
   if (!appError) {
     console.error(error);

@@ -5,3 +5,5 @@ export * from './category';
 export * from './define-endpoint';
 export * from './create-category.endpoint';
 export * from './list-categories.endpoint';
+export * from './create-equipment.endpoint';
+export * from './call-endpoint';

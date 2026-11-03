@@ -38,41 +38,14 @@ request-context shape. No local authentication substitute or bypass is included.
 
 After wiring the shared implementation, verify a real worker JWT (201), a
 customer JWT (403), and missing, invalid, and expired tokens (401). These real
-authentication cases remain pending; injected test middleware cannot prove them.
-
-## Database integration tests
-
-Use an empty, disposable PostgreSQL database named
-`pujcovna_categories_test_<suffix>`. The suite refuses other database names and
-deletes category/audit rows in that disposable database before each test.
-
-Set `DATABASE_URL` in the process environment, then run from the repository root:
-
-```sh
-pnpm --filter @pujcovna/reference-data-service db:generate
-pnpm --filter @pujcovna/reference-data-service db:deploy
-pnpm --filter @pujcovna/reference-data-service test:integration
-```
-
-The tests use the existing migration, real Prisma/PostgreSQL writes, and real
-HTTP requests on loopback. Worker and rejected-user contexts are injected only
-in the test module; they are not JWT authentication.
-
-The 14 cases cover public empty/sorted lists, the default closed POST, forged
-identity, middleware rejection, missing actor context, creation and audit,
-contract validation, the required-name message, the length boundary, malformed JSON, duplicates,
-eight concurrent duplicate requests, and rollback when the audit insert fails.
-
-Verified on 2026-11-02: `pnpm check`, `pnpm build`, and all 14 PostgreSQL
-integration tests passed. No dependencies or database schema changes were needed.
+authentication cases remain pending.
 
 ## Fresh checkout
 
 Before checking or building a fresh checkout, run `pnpm db:generate` from the
 repository root. Prisma clients are generated files and are not committed.
 A clean source copy passed `pnpm check` and `pnpm build` after generation.
-The existing team CI workflow currently omits this preparation step; no CI or
-shared startup scripts are changed by this category implementation.
+The CI workflow runs this generation step before lint, type checking, and build.
 
 The shared contract helper and copyable endpoint template are documented in
 [`packages/shared/README.md`](../../packages/shared/README.md).

@@ -1,7 +1,7 @@
 import type { CategoryResponse } from '@pujcovna/shared';
+import type { category } from '../../generated/prisma/client';
 
-// Prevent database-only fields from leaking into API responses.
-export const toCategoryResponse = ({ id, name }: CategoryResponse): CategoryResponse => ({
+export const toCategoryResponse = ({ id, name }: category): CategoryResponse => ({
   id,
   name,
 });

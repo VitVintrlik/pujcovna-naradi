@@ -1,9 +1,8 @@
 import { categoryListResponseSchema } from './category';
-import { defineEndpoint } from './define-endpoint';
+import { defineEndpoint, HttpMethod } from './define-endpoint';
 
-// Category listing is public and does not require sign-in.
 export const listCategoriesEndpoint = defineEndpoint({
-  method: 'GET',
+  method: HttpMethod.Get,
   path: '/categories',
   response: categoryListResponseSchema,
 });

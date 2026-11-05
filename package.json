@@ -13,6 +13,7 @@
     "dev:fe": "pnpm --filter \"./apps/web\" dev",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "db:generate": "pnpm --filter \"./services/*\" db:generate",
     "typecheck": "pnpm -r typecheck",
     "build": "pnpm -r build",
     "check": "pnpm lint && pnpm typecheck"

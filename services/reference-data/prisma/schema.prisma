@@ -1,0 +1,45 @@
+// Naming: models and fields are camelCase (as in the persistence-layer draft); tables and columns are snake_case via @map/@@map.
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @unique @db.VarChar(100)
+
+  @@map("category")
+}
+
+model pickupLocation {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String @db.VarChar(100)
+  street       String @db.VarChar(100)
+  houseNumber  String @map("house_number") @db.VarChar(20)
+  postalCode   String @map("postal_code") @db.Char(5)
+  city         String @db.VarChar(100)
+  // 7 days, each { open, close } in HH:mm or null when closed
+  openingHours Json   @map("opening_hours")
+
+  @@unique([street, houseNumber, postalCode, city])
+  @@map("pickup_location")
+}
+
+model auditLogEntry {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  actorId    String   @map("actor_id")
+  actorRole  String   @map("actor_role") @db.VarChar(20)
+  action     String   @db.VarChar(100)
+  entityType String   @map("entity_type") @db.VarChar(100)
+  entityId   String   @map("entity_id")
+  details    Json?
+
+  @@index([entityType, entityId])
+  @@map("audit_log_entry")
+}

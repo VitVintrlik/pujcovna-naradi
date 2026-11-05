@@ -30,7 +30,7 @@ pnpm dev          # database + all services + web
 ```
 
 Open http://localhost:5173 – the page shows whether `example-service` is reachable.
-No `.env` is needed for local development; every app has defaults and lists its variables in `.env.example`.
+Every service reads its configuration from a `.env` in its folder and lists the variables in `.env.example` – copy each one to `.env`. `services/auth` has no defaults for the secrets: fill in `BETTER_AUTH_SECRET` and the Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) as described in its `.env.example`; the Google redirect URI is `http://localhost:3100/auth/callback/google`.
 
 | Command | What it does |
 |---|---|
@@ -53,6 +53,7 @@ AGENTS.md                  # rules for AI agents (Claude Code, Codex, Cursor)
 apps/web/                  # React frontend (Vite)
 services/example/          # template microservice (Express) – copy it for real services
 packages/shared/           # types + Zod schemas shared by the frontend and services
+packages/server/           # backend helpers the services share (errors, sign-in guards)
 scripts/after-edit.mjs     # agent hook: formats + lints every file an agent writes
 .claude/ · .codex/         # hook configuration for Claude Code and Codex
 docker-compose.yml         # local PostgreSQL

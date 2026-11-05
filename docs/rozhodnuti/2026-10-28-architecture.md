@@ -79,8 +79,9 @@ services/rental/
 │   ├── index.ts                spustí ji
 │   ├── env.ts                  ověřená konfigurace – jediné místo, které čte process.env
 │   └── tools/                  jedna složka na entitu
-│       ├── tool.routes.ts      zparsuje vstup → zavolá service → pošle odpověď
-│       ├── tool.service.ts     logika a dotazy přes Prismu
+│       ├── tool.controller.ts  zparsuje vstup → zavolá service → pošle odpověď
+│       ├── tool.service.ts     logika
+│       ├── tool.repository.ts  dotazy přes Prismu (DAO metody z Application Modelu)
 │       └── tool.mapper.ts      řádek z databáze → odpověď (výslovně vypsaná pole)
 └── .env.example
 ```
@@ -90,12 +91,13 @@ Je to uspořádané tak, jak by to uspořádal NestJS, takže tvar je povědomý
 | NestJS | U nás |
 |---|---|
 | module | `src/<entita>/` |
-| controller | `<entita>.routes.ts` – jen zparsovat, zavolat, odpovědět |
-| service | `<entita>.service.ts` |
+| controller | třída `<Entita>Controller` v `<entita>.controller.ts` – jen zparsovat, zavolat, odpovědět |
+| service | třída `<Entita>Service` v `<entita>.service.ts` |
+| dependency injection | instance vytvoří `src/app.ts` a předá je konstruktorem |
 | DTO + validation pipe | Zod schémata z kontraktu endpointu (§4) |
 | exception filter | `throw new AppError(code, message)` + centrální `errorHandler` → `{ error: { code, message, details } }` |
 | guard | middleware `requireAuth()` / `requireRole('worker')`; veřejná routa se označí výslovně |
-| repository | žádné – service volá Prismu přímo; klient Prismy už repository je |
+| repository | třída `<Entita>Repository` v `<entita>.repository.ts` – jediné místo, které volá Prismu; metody odpovídají DAO metodám z Application Modelu |
 | response DTO | `to<Entita>Response()` v mapperu – nikdy rozbalený řádek z databáze |
 
 ### 2.4 Databáze

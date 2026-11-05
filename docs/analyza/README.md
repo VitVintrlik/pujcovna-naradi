@@ -10,5 +10,6 @@ Anyone can draft content here with AI and then move it to uuApp. How: [`docs/ai/
 | `user-stories/` | user stories (Business Requests › User story) |
 | `business-use-cases/` | business use cases (Business Model) |
 | `commands/` | endpoints (Application Model › Command List) |
+| `application-model/` | Application Model drafts (Application, Profiles, Persistence Layer, Command List, Components) |
 
 Every file starts with the line `> Draft – zdroj pravdy je uuApp.`

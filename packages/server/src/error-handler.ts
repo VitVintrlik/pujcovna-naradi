@@ -1,6 +1,7 @@
 import type { ApiError, ErrorCode } from '@pujcovna/shared';
-import type { ErrorRequestHandler, RequestHandler } from 'express';
+import type { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
+import { AppError } from './app-error';
 
 const statusByCode: Record<ErrorCode, number> = {
   VALIDATION_FAILED: 400,
@@ -8,21 +9,6 @@ const statusByCode: Record<ErrorCode, number> = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   INTERNAL: 500,
-};
-
-export class AppError extends Error {
-  readonly code: ErrorCode;
-  readonly details?: unknown;
-
-  constructor(code: ErrorCode, message: string, details?: unknown) {
-    super(message);
-    this.code = code;
-    this.details = details;
-  }
-}
-
-export const notFoundHandler: RequestHandler = (request) => {
-  throw new AppError('NOT_FOUND', `Route ${request.method} ${request.path} does not exist`);
 };
 
 export const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => {

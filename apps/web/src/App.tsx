@@ -1,14 +1,14 @@
-import { useServiceHealth } from './api/useServiceHealth';
+import { RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { RoleProvider } from './auth/RoleContext';
+import { router } from './routes';
 
-export const App = () => {
-  const health = useServiceHealth('/api/example/health');
+const queryClient = new QueryClient();
 
-  return (
-    <main>
-      <h1>Půjčovna nářadí</h1>
-      {health.status === 'loading' && <p>Checking example-service…</p>}
-      {health.status === 'error' && <p>example-service is not reachable: {health.message}</p>}
-      {health.status === 'ready' && <p>example-service: {health.health.status}</p>}
-    </main>
-  );
-};
+export const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <RoleProvider>
+      <RouterProvider router={router} />
+    </RoleProvider>
+  </QueryClientProvider>
+);

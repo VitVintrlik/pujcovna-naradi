@@ -1,14 +1,14 @@
-import type { z } from 'zod';
+import {
+  callEndpoint,
+  createPickupLocationEndpoint,
+  listPickupLocationsEndpoint,
+  type CreatePickupLocationBody,
+} from '@pujcovna/shared';
 
-const REQUEST_TIMEOUT_MS = 10_000;
+const REFERENCE_DATA_API_BASE_URL = '/api/reference-data';
 
-export const apiGet = async <Schema extends z.ZodType>(
-  path: string,
-  schema: Schema,
-): Promise<z.infer<Schema>> => {
-  const response = await fetch(path, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
-  if (!response.ok) {
-    throw new Error(`GET ${path} failed with status ${response.status}`);
-  }
-  return schema.parse(await response.json());
-};
+export const getPickupLocations = () =>
+  callEndpoint(listPickupLocationsEndpoint, {}, { baseUrl: REFERENCE_DATA_API_BASE_URL });
+
+export const createPickupLocation = (body: CreatePickupLocationBody) =>
+  callEndpoint(createPickupLocationEndpoint, { body }, { baseUrl: REFERENCE_DATA_API_BASE_URL });

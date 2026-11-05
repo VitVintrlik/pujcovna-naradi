@@ -3,6 +3,7 @@ import { z } from 'zod';
 const INVALID_PICKUP_LOCATION_MESSAGE = 'Zkontrolujte povinná pole a opravte neplatné údaje.';
 const INVALID_OPENING_HOURS_MESSAGE =
   'Otevírací doba musí být definována alespoň pro jeden den v týdnu. U otevřených dnů musí být vyplněn čas otevření i zavření.';
+const INVALID_OPENING_HOURS_ORDER_MESSAGE = 'Čas otevření musí být před časem zavření.';
 const MAX_ADDRESS_TEXT_LENGTH = 100;
 const MAX_HOUSE_NUMBER_LENGTH = 20;
 const LETTER_PATTERN = /\p{L}/u;
@@ -39,6 +40,10 @@ const openingDaySchema = z
     { open: openingTimeSchema, close: openingTimeSchema },
     { error: INVALID_OPENING_HOURS_MESSAGE },
   )
+  .refine(({ open, close }) => open < close, {
+    error: INVALID_OPENING_HOURS_ORDER_MESSAGE,
+    path: ['close'],
+  })
   .nullable();
 
 export const openingHoursSchema = z
@@ -57,7 +62,6 @@ export const createPickupLocationBodySchema = z.object(
       .regex(DIGIT_PATTERN, INVALID_PICKUP_LOCATION_MESSAGE),
     postalCode: z
       .string({ error: INVALID_PICKUP_LOCATION_MESSAGE })
-      .trim()
       .regex(POSTAL_CODE_PATTERN, INVALID_PICKUP_LOCATION_MESSAGE),
     city: addressTextSchema,
     openingHours: openingHoursSchema,

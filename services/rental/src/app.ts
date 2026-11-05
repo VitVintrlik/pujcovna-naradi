@@ -1,6 +1,6 @@
 import express from 'express';
 import { equipmentRouter } from './equipment/equipment.routes';
-import { errorHandler, notFoundHandler } from './errors';
+import { errorHandler, notFoundHandler } from '@pujcovna/server';
 import { healthRouter } from './health/health.routes';
 
 export const createApp = () => {

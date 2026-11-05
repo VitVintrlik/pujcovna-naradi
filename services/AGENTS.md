@@ -5,25 +5,29 @@
 ## Layout
 
 - Copy `services/example` to start a new service.
-- Put one folder per entity: `src/<entity>/<entity>.routes.ts`, `<entity>.service.ts`, `<entity>.mapper.ts`.
+- Put one folder per entity: `src/<entity>/<entity>.controller.ts`, `<entity>.service.ts`, `<entity>.repository.ts`, `<entity>.mapper.ts`.
+- Write the controller, the service and the repository as classes that receive their dependencies through the constructor as `private readonly` fields.
+- Create every instance in `src/app.ts`; never create a dependency inside a class.
 - Keep `src/app.ts` building the app and `src/index.ts` only starting it.
 - Put code two or more services share in `packages/server`; never copy it between services.
 
-## Routes
+## Controllers
 
-- Keep a route handler to parsing input with its contract, calling one service function and sending the response.
+- Write every handler as an arrow-function class field, so it can be passed to Express without `bind`.
+- Keep a handler to parsing input with its contract, calling one service method and sending the response.
 - Validate every body, param and query with the endpoint contract's schema before using it.
 - Register a route with its contract's `path`; never a path literal.
 - Type every response body with the contract's response type.
 - Require sign-in with `requireAuth()` on every route; mark a public route explicitly.
 - Check a role with `requireRole(...)` on the route; never compare roles inside a handler or a service.
 
-## Service functions
+## Services and repositories
 
-- Put the logic in `<entity>.service.ts` and call the Prisma client directly; there is no repository layer.
-- Trust the input the route validated; never validate it again in the service.
+- Put the logic in the service and every Prisma call in the repository; a service never touches the Prisma client.
+- Give the repository one method per DAO method in the Application Model.
+- Trust the input the controller validated; never validate it again in the service.
 - Scope every query on user-owned data by the authenticated user's id.
-- Open one transaction for a change that writes more than once and pass it to every write inside it.
+- Open one transaction for a change that writes more than once and pass its client to every repository method inside it.
 - Record every change with `recordAudit(...)` in the same transaction as the change.
 - Signal an expected failure with `throw new AppError(code, message)`; never send an error body by hand.
 - Let the central `errorHandler` turn every thrown error into `{ error: { code, message, details } }`.

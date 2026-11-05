@@ -1,5 +1,5 @@
 import { Prisma } from '../../generated/prisma/client';
-import { AppError } from '../errors';
+import { AppError } from '@pujcovna/server';
 import { prisma } from '../prisma';
 import { toCategoryResponse } from './category.mapper';
 

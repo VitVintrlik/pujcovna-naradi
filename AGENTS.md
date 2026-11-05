@@ -57,8 +57,8 @@ Team 1 semester project (BPMI 2026 winter): the "Půjčovna nářadí" tool-rent
 
 - Never use `any`; use `unknown`, a type guard or a schema-derived type (`z.infer`).
 - Use `type`, never `interface`.
-- Write every function, component and callback as an arrow function; never use the `function` keyword.
-- Use `class` only for errors (`AppError`).
+- Never use the `function` keyword; write a standalone function, component or callback as an arrow function.
+- Use `class` for errors (`AppError`) and for the backend layers: controller, service, repository.
 - Never silence the type checker with `@ts-ignore`, `@ts-expect-error`, `as any` or a non-null `!`.
 - Use `const`; use `let` only for a variable that is reassigned; never `var`.
 - Write whole words: `request` not `req`, `response` not `res`, `error` not `err`, `index` not `i`.

@@ -10,3 +10,4 @@ export * from './call-endpoint';
 export * from './pickup-location';
 export * from './create-pickup-location.endpoint';
 export * from './list-pickup-locations.endpoint';
+export * from './user';

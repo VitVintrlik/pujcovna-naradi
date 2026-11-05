@@ -3,8 +3,7 @@ import { equipmentState } from '../../generated/prisma/client';
 import type { Prisma } from '../../generated/prisma/client';
 import { prisma } from '../prisma';
 import { toCreateEquipmentResponse } from './equipment.mapper';
-import { assertCategoryExists } from './equipment.references';
-import type { PickupLocationExistenceCheck } from './equipment.references';
+import { assertCategoryExists, assertPickupLocationExists } from './equipment.references';
 
 const EQUIPMENT_COUNTER_ID = 'equipment';
 const EQUIPMENT_CODE_PREFIX = 'K';
@@ -28,16 +27,13 @@ const allocateEquipmentCode = async ({
 
 type CreateEquipmentOptions = {
   body: CreateEquipmentBody;
-  assertPickupLocationExists?: PickupLocationExistenceCheck;
 };
 
 export const createEquipment = async ({
   body,
-  assertPickupLocationExists,
 }: CreateEquipmentOptions): Promise<CreateEquipmentResponse> => {
   await assertCategoryExists({ categoryId: body.categoryId });
-  // The real pickup-location check can be supplied once its HTTP contract is available.
-  await assertPickupLocationExists?.({ pickupLocationId: body.pickupLocationId });
+  await assertPickupLocationExists({ pickupLocationId: body.pickupLocationId });
 
   return await prisma.$transaction(async (transaction) => {
     const code = await allocateEquipmentCode({ transaction });

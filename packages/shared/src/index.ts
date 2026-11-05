@@ -7,3 +7,6 @@ export * from './create-category.endpoint';
 export * from './list-categories.endpoint';
 export * from './create-equipment.endpoint';
 export * from './call-endpoint';
+export * from './pickup-location';
+export * from './create-pickup-location.endpoint';
+export * from './list-pickup-locations.endpoint';

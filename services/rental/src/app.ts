@@ -1,5 +1,5 @@
 import express from 'express';
-import { errorHandler, notFoundHandler } from './errors';
+import { errorHandler, notFoundHandler } from '@pujcovna/server';
 import { healthRouter } from './health/health.routes';
 
 export const createApp = () => {

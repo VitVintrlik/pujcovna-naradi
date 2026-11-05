@@ -1,7 +1,7 @@
 import type { PickupLocationResponse } from '@pujcovna/shared';
 import { openingHoursResponseSchema } from '@pujcovna/shared';
 import type { pickupLocation } from '../../generated/prisma/client';
-import { AppError } from '../errors';
+import { AppError } from '@pujcovna/server';
 
 export const toPickupLocationResponse = ({
   id,

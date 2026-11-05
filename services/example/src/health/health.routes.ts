@@ -1,9 +1,10 @@
 import type { HealthResponse } from '@pujcovna/shared';
+import { AuthGuard } from '@pujcovna/server';
 import { Router } from 'express';
 
 export const healthRouter = Router();
 
-healthRouter.get('/health', (_request, response) => {
+healthRouter.get('/health', AuthGuard.allowPublic(), (_request, response) => {
   const body: HealthResponse = { status: 'ok', service: 'example' };
   response.json(body);
 });

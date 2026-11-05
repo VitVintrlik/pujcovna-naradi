@@ -90,3 +90,15 @@ model auditLogEntry {
   @@index([entityType, entityId])
   @@map("audit_log_entry")
 }
+
+model jwks {
+  id         String    @id
+  publicKey  String    @map("public_key")
+  privateKey String    @map("private_key")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt  DateTime? @map("expires_at") @db.Timestamptz(3)
+  alg        String?
+  crv        String?
+
+  @@map("jwks")
+}

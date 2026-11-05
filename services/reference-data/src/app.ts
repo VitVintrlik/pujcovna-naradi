@@ -1,16 +1,28 @@
 import express from 'express';
-import { categoryRouter } from './category/category.routes';
-import { errorHandler, notFoundHandler } from './errors';
+import {
+  AuthGuard,
+  JwtVerifier,
+  createRemoteKeySet,
+  errorHandler,
+  notFoundHandler,
+} from '@pujcovna/server';
+import { createCategoryRouter } from './category/category.routes';
+import { environment } from './env';
 import { healthRouter } from './health/health.routes';
-import { pickupLocationRouter } from './pickup-location/pickup-location.routes';
+import { createPickupLocationRouter } from './pickup-location/pickup-location.routes';
 
 export const createApp = () => {
   const app = express();
+  const jwtVerifier = new JwtVerifier(createRemoteKeySet(environment.AUTH_JWKS_URL), {
+    issuer: environment.AUTH_ISSUER,
+    audience: environment.AUTH_AUDIENCE,
+  });
+  const authGuard = new AuthGuard(jwtVerifier);
 
   app.use(express.json());
   app.use(healthRouter);
-  app.use(categoryRouter);
-  app.use(pickupLocationRouter);
+  app.use(createCategoryRouter(authGuard));
+  app.use(createPickupLocationRouter(authGuard));
   app.use(notFoundHandler);
   app.use(errorHandler);
 

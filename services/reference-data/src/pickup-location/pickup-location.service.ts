@@ -1,6 +1,6 @@
 import type { CreatePickupLocationBody } from '@pujcovna/shared';
 import { Prisma } from '../../generated/prisma/client';
-import { AppError } from '../errors';
+import { AppError } from '@pujcovna/server';
 import { prisma } from '../prisma';
 import { toPickupLocationResponse } from './pickup-location.mapper';
 

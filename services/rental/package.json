@@ -13,8 +13,9 @@
     "db:reset": "prisma migrate reset --force --skip-seed"
   },
   "dependencies": {
-    "@pujcovna/shared": "workspace:*",
     "@prisma/client": "6.19.3",
+    "@pujcovna/server": "workspace:*",
+    "@pujcovna/shared": "workspace:*",
     "express": "5.3.0",
     "zod": "4.6.5"
   },

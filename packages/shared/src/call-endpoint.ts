@@ -1,118 +1,56 @@
 import { z } from 'zod';
+import type { ZodType } from 'zod';
 import type { EndpointDefinition } from './define-endpoint';
 
-const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
-const REQUEST_FAILED_MESSAGE = 'Request failed';
-const CONTENT_TYPE_HEADER = 'Content-Type';
-const JSON_CONTENT_TYPE = 'application/json';
-const LOCAL_URL_BASE = 'http://localhost';
-const ABSOLUTE_URL_PATTERN = /^https?:\/\//i;
-
-const errorResponseSchema = z.object({
-  error: z.object({
-    message: z.string(),
-  }),
+const apiErrorSchema = z.object({
+  error: z.object({ code: z.string(), message: z.string(), details: z.unknown().optional() }),
 });
+const JSON_CONTENT_TYPE = 'application/json';
 
-type EndpointInput<TEndpoint extends EndpointDefinition> = (TEndpoint extends {
-  params: infer Schema extends z.ZodType;
-}
-  ? { params: z.input<Schema> }
-  : object) &
-  (TEndpoint extends { query: infer Schema extends z.ZodType }
-    ? { query: z.input<Schema> }
-    : object) &
-  (TEndpoint extends { body: infer Schema extends z.ZodType } ? { body: z.input<Schema> } : object);
-
-type CallEndpointOptions = {
+type EndpointCallOptions<TBody> = {
   baseUrl: string;
-  timeoutMs?: number;
+  timeoutMs: number;
+  body?: TBody;
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
-
-const getRecordProperty = (record: unknown, key: string) =>
-  isRecord(record) ? record[key] : undefined;
-
-const createRequestPath = (path: string, params: unknown) => {
-  if (!isRecord(params)) {
-    return path;
-  }
-
-  return Object.entries(params).reduce(
-    (requestPath, [key, value]) =>
-      requestPath.replace(`:${key}`, encodeURIComponent(String(value))),
-    path,
-  );
+// URL parameters and query schemas are excluded until a consumer needs them.
+type CallableEndpoint<TResponse, TBody> = Pick<EndpointDefinition, 'method' | 'path'> & {
+  response: ZodType<TResponse>;
+  body?: ZodType<TBody>;
+  params?: never;
+  query?: never;
 };
 
-const appendQuery = (url: URL, query: unknown) => {
-  if (!isRecord(query)) {
-    return;
+export class EndpointCallError extends Error {
+  readonly status: number;
+  readonly code: string;
+  readonly details?: unknown;
+
+  constructor(status: number, { code, message, details }: z.infer<typeof apiErrorSchema>['error']) {
+    super(message);
+    this.name = 'EndpointCallError';
+    this.status = status;
+    this.code = code;
+    this.details = details;
   }
+}
 
-  Object.entries(query).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      url.searchParams.set(key, String(value));
-    }
-  });
-};
-
-const parseResponseBody = async (response: Response): Promise<unknown> => {
-  const responseText = await response.text();
-
-  if (responseText.length === 0) {
-    return undefined;
-  }
-
-  try {
-    const responseBody: unknown = JSON.parse(responseText);
-    return responseBody;
-  } catch (error) {
-    if (!response.ok) {
-      return undefined;
-    }
-
-    throw new Error('Response body is not valid JSON', { cause: error });
-  }
-};
-
-export const callEndpoint = async <
-  TEndpoint extends EndpointDefinition,
-  TResponse extends z.ZodType,
->(
-  endpoint: TEndpoint & { response: TResponse },
-  input: EndpointInput<TEndpoint>,
-  { baseUrl, timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS }: CallEndpointOptions,
-): Promise<z.infer<TResponse>> => {
-  const requestPath = createRequestPath(endpoint.path, getRecordProperty(input, 'params'));
-  const baseUrlWithoutTrailingSlash = baseUrl.replace(/\/$/, '');
-  const requestUrl = `${baseUrlWithoutTrailingSlash}${requestPath}`;
-  const url = new URL(requestUrl, LOCAL_URL_BASE);
-  appendQuery(url, getRecordProperty(input, 'query'));
-
-  const body = getRecordProperty(input, 'body');
-  const hasBody = body !== undefined;
-  const fetchUrl = ABSOLUTE_URL_PATTERN.test(requestUrl)
-    ? url.toString()
-    : `${url.pathname}${url.search}`;
-  const response = await fetch(fetchUrl, {
+export const callEndpoint = async <TResponse, TBody = undefined>(
+  endpoint: CallableEndpoint<TResponse, TBody>,
+  { baseUrl, timeoutMs, body }: EndpointCallOptions<TBody>,
+): Promise<TResponse> => {
+  const parsedBody = endpoint.body?.parse(body);
+  const response = await fetch(`${baseUrl.replace(/\/+$/, '')}${endpoint.path}`, {
     method: endpoint.method,
-    headers: hasBody ? { [CONTENT_TYPE_HEADER]: JSON_CONTENT_TYPE } : undefined,
-    body: hasBody ? JSON.stringify(body) : undefined,
     signal: AbortSignal.timeout(timeoutMs),
+    headers: parsedBody === undefined ? undefined : { 'Content-Type': JSON_CONTENT_TYPE },
+    body: parsedBody === undefined ? undefined : JSON.stringify(parsedBody),
   });
-  const responseBody = await parseResponseBody(response);
+  const data: unknown = await response.json();
 
   if (!response.ok) {
-    const parsedError = errorResponseSchema.safeParse(responseBody);
-    throw new Error(
-      parsedError.success
-        ? parsedError.data.error.message
-        : `${REQUEST_FAILED_MESSAGE}: ${response.status}`,
-    );
+    throw new EndpointCallError(response.status, apiErrorSchema.parse(data).error);
   }
 
-  return endpoint.response.parse(responseBody);
+  return endpoint.response.parse(data);
 };

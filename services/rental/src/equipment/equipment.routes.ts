@@ -1,7 +1,7 @@
 import { createEquipmentEndpoint } from '@pujcovna/shared';
 import type { CreateEquipmentResponse } from '@pujcovna/shared';
 import { Router } from 'express';
-import { AppError } from '../errors';
+import { AppError } from '@pujcovna/server';
 import { EQUIPMENT_INVALID_INPUT_MESSAGE } from './equipment.constants';
 import { createEquipment } from './equipment.service';
 

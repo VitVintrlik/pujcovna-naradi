@@ -4,8 +4,8 @@ import {
   listPickupLocationsEndpoint,
 } from '@pujcovna/shared';
 import type { CreateEquipmentBody } from '@pujcovna/shared';
+import { AppError } from '@pujcovna/server';
 import { environment } from '../env';
-import { AppError } from '../errors';
 import { EQUIPMENT_INVALID_INPUT_MESSAGE } from './equipment.constants';
 
 export const assertCategoryExists = async ({

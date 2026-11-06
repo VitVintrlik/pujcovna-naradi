@@ -14,6 +14,13 @@ enum equipmentState {
   RETIRED
 }
 
+model equipmentCodeCounter {
+  id         String @id @db.VarChar(50)
+  lastNumber Int    @default(0) @map("last_number")
+
+  @@map("equipment_code_counter")
+}
+
 enum orderStatus {
   PENDING
   CONFIRMED

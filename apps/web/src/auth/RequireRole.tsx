@@ -1,6 +1,7 @@
 import type { UserRole } from '@pujcovna/shared';
 import { Button, EmptyState, ErrorState, LoadingState } from '@pujcovna/ui';
 import { Navigate, Outlet } from 'react-router';
+import { useCurrentRole } from '../hooks/use-current-role';
 import { useCurrentUser } from '../hooks/use-current-user';
 import { useSignIn } from '../hooks/use-sign-in';
 import { paths } from '../paths';
@@ -12,6 +13,7 @@ type RequireRoleProps = {
 
 export const RequireRole = ({ role }: RequireRoleProps) => {
   const currentUser = useCurrentUser();
+  const currentRole = useCurrentRole();
   const signIn = useSignIn();
 
   if (currentUser.isPending) {
@@ -22,7 +24,7 @@ export const RequireRole = ({ role }: RequireRoleProps) => {
     return <ErrorState message={getErrorMessage(currentUser.error)} />;
   }
 
-  if (currentUser.data === null) {
+  if (currentRole === undefined) {
     return (
       <EmptyState
         action={
@@ -36,7 +38,7 @@ export const RequireRole = ({ role }: RequireRoleProps) => {
     );
   }
 
-  if (currentUser.data.role !== role) {
+  if (currentRole !== role) {
     return <Navigate replace to={paths.accessDenied} />;
   }
 

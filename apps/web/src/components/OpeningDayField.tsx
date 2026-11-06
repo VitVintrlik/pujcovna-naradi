@@ -13,7 +13,11 @@ type OpeningDayFieldProps = {
 
 export const OpeningDayField = ({ control, day, label }: OpeningDayFieldProps) => {
   const checkboxId = useId();
-  const { field } = useController({ control, name: `openingHours.${day}` });
+  const { field } = useController({
+    control,
+    name: `openingHours.${day}`,
+    rules: { deps: 'openingHours' },
+  });
   const isOpen = field.value !== null;
 
   return (

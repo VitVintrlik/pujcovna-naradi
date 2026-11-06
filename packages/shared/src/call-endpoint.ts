@@ -1,16 +1,18 @@
-import { z } from 'zod';
 import type { ZodType } from 'zod';
 import type { EndpointDefinition } from './define-endpoint';
+import { apiErrorSchema, type ApiError, type ErrorCode } from './errors';
 
-const apiErrorSchema = z.object({
-  error: z.object({ code: z.string(), message: z.string(), details: z.unknown().optional() }),
-});
+const DEFAULT_TIMEOUT_MS = 10_000;
+const CONTENT_TYPE_HEADER = 'Content-Type';
 const JSON_CONTENT_TYPE = 'application/json';
+const TRAILING_SLASHES_PATTERN = /\/+$/;
 
 type EndpointCallOptions<TBody> = {
   baseUrl: string;
-  timeoutMs: number;
   body?: TBody;
+  headers?: Record<string, string>;
+  signal?: AbortSignal;
+  timeoutMs?: number;
 };
 
 // URL parameters and query schemas are excluded until a consumer needs them.
@@ -23,10 +25,10 @@ type CallableEndpoint<TResponse, TBody> = Pick<EndpointDefinition, 'method' | 'p
 
 export class EndpointCallError extends Error {
   readonly status: number;
-  readonly code: string;
+  readonly code: ErrorCode;
   readonly details?: unknown;
 
-  constructor(status: number, { code, message, details }: z.infer<typeof apiErrorSchema>['error']) {
+  constructor(status: number, { code, message, details }: ApiError['error']) {
     super(message);
     this.name = 'EndpointCallError';
     this.status = status;
@@ -35,22 +37,48 @@ export class EndpointCallError extends Error {
   }
 }
 
+const createSignal = (signal: AbortSignal | undefined, timeoutMs: number) => {
+  const timeoutSignal = AbortSignal.timeout(timeoutMs);
+  return signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
+};
+
+const readResponseBody = async (response: Response): Promise<unknown> =>
+  response.headers.get(CONTENT_TYPE_HEADER)?.includes(JSON_CONTENT_TYPE)
+    ? response.json()
+    : response.text();
+
+const toEndpointCallError = (status: number, responseBody: unknown, request: string) => {
+  const apiError = apiErrorSchema.safeParse(responseBody);
+
+  return new EndpointCallError(
+    status,
+    apiError.success
+      ? apiError.data.error
+      : {
+          code: 'INTERNAL',
+          message: `${request} failed with status ${status}`,
+          details: responseBody,
+        },
+  );
+};
+
 export const callEndpoint = async <TResponse, TBody = undefined>(
   endpoint: CallableEndpoint<TResponse, TBody>,
-  { baseUrl, timeoutMs, body }: EndpointCallOptions<TBody>,
+  { baseUrl, body, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS }: EndpointCallOptions<TBody>,
 ): Promise<TResponse> => {
   const parsedBody = endpoint.body?.parse(body);
-  const response = await fetch(`${baseUrl.replace(/\/+$/, '')}${endpoint.path}`, {
+  const response = await fetch(`${baseUrl.replace(TRAILING_SLASHES_PATTERN, '')}${endpoint.path}`, {
     method: endpoint.method,
-    signal: AbortSignal.timeout(timeoutMs),
-    headers: parsedBody === undefined ? undefined : { 'Content-Type': JSON_CONTENT_TYPE },
+    signal: createSignal(signal, timeoutMs),
+    headers:
+      parsedBody === undefined ? headers : { ...headers, [CONTENT_TYPE_HEADER]: JSON_CONTENT_TYPE },
     body: parsedBody === undefined ? undefined : JSON.stringify(parsedBody),
   });
-  const data: unknown = await response.json();
+  const responseBody = await readResponseBody(response);
 
   if (!response.ok) {
-    throw new EndpointCallError(response.status, apiErrorSchema.parse(data).error);
+    throw toEndpointCallError(response.status, responseBody, `${endpoint.method} ${endpoint.path}`);
   }
 
-  return endpoint.response.parse(data);
+  return endpoint.response.parse(responseBody);
 };

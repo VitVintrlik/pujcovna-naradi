@@ -1,14 +1,47 @@
-import type { z } from 'zod';
+import {
+  authenticatedUserSchema,
+  callEndpoint,
+  createPickupLocationEndpoint,
+  listPickupLocationsEndpoint,
+  type CreatePickupLocationBody,
+} from '@pujcovna/shared';
+import { createAuthClient } from 'better-auth/client';
+import { jwtClient } from 'better-auth/client/plugins';
 
-const REQUEST_TIMEOUT_MS = 10_000;
+const AUTH_API_BASE_PATH = '/api/auth';
+const REFERENCE_DATA_API_BASE_URL = '/api/reference-data';
+const GOOGLE_PROVIDER = 'google';
 
-export const apiGet = async <Schema extends z.ZodType>(
-  path: string,
-  schema: Schema,
-): Promise<z.infer<Schema>> => {
-  const response = await fetch(path, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
-  if (!response.ok) {
-    throw new Error(`GET ${path} failed with status ${response.status}`);
-  }
-  return schema.parse(await response.json());
+const authClient = createAuthClient({
+  baseURL: `${window.location.origin}${AUTH_API_BASE_PATH}`,
+  plugins: [jwtClient()],
+  fetchOptions: { throw: true },
+});
+
+const getAuthorizationHeaders = async () => {
+  const { token } = await authClient.token();
+  return { Authorization: `Bearer ${token}` };
 };
+
+export const getCurrentUser = async () => {
+  const session = await authClient.getSession();
+  return session ? authenticatedUserSchema.parse(session.user) : null;
+};
+
+export const signIn = async () => {
+  await authClient.signIn.social({ provider: GOOGLE_PROVIDER, callbackURL: window.location.href });
+};
+
+export const signOut = async () => {
+  await authClient.signOut();
+};
+
+export const getPickupLocations = (signal: AbortSignal) =>
+  callEndpoint(listPickupLocationsEndpoint, { baseUrl: REFERENCE_DATA_API_BASE_URL, signal });
+
+export const createPickupLocation = async (body: CreatePickupLocationBody) =>
+  callEndpoint(createPickupLocationEndpoint, {
+    baseUrl: REFERENCE_DATA_API_BASE_URL,
+    body,
+    headers: await getAuthorizationHeaders(),
+  });

@@ -1,12 +1,12 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { UserRole } from '@pujcovna/shared';
+import { createBrowserRouter } from 'react-router';
 import { RequireRole } from './auth/RequireRole';
-import { UserRole } from './auth/user-role';
 import { AppLayout } from './layouts/AppLayout';
 import { AccessDeniedPage } from './pages/AccessDeniedPage';
 import { CreatePickupLocationPage } from './pages/CreatePickupLocationPage';
 import { HomePage } from './pages/HomePage';
-import { PickupLocationsPage } from './pages/PickupLocationsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { PickupLocationsPage } from './pages/PickupLocationsPage';
 import { paths } from './paths';
 
 export const router = createBrowserRouter([
@@ -16,20 +16,11 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       {
-        path: paths.pickupLocations,
-        element: (
-          <RequireRole role={UserRole.Worker}>
-            <PickupLocationsPage />
-          </RequireRole>
-        ),
-      },
-      {
-        path: paths.createPickupLocation,
-        element: (
-          <RequireRole role={UserRole.Worker}>
-            <CreatePickupLocationPage />
-          </RequireRole>
-        ),
+        element: <RequireRole role={UserRole.Worker} />,
+        children: [
+          { path: paths.pickupLocations, element: <PickupLocationsPage /> },
+          { path: paths.createPickupLocation, element: <CreatePickupLocationPage /> },
+        ],
       },
       { path: paths.accessDenied, element: <AccessDeniedPage /> },
       { path: '*', element: <NotFoundPage /> },

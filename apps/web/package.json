@@ -13,10 +13,11 @@
     "@pujcovna/shared": "workspace:*",
     "@pujcovna/ui": "workspace:*",
     "@tanstack/react-query": "5.106.1",
+    "better-auth": "1.7.14",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-hook-form": "7.91.0",
-    "react-router-dom": "7.18.5",
+    "react-router": "8.5.1",
     "zod": "4.6.5"
   },
   "devDependencies": {

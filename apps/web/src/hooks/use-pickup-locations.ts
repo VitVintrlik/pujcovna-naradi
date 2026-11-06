@@ -6,5 +6,5 @@ export const pickupLocationsQueryKey = ['pickup-locations'] as const;
 export const usePickupLocations = () =>
   useQuery({
     queryKey: pickupLocationsQueryKey,
-    queryFn: getPickupLocations,
+    queryFn: ({ signal }) => getPickupLocations(signal),
   });

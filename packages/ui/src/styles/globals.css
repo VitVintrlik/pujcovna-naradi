@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@source "../components";
+@source "..";
 @source "../../../../apps/web/src";
 
 @theme inline {

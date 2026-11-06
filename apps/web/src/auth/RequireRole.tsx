@@ -1,20 +1,44 @@
-import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useRole } from './RoleContext';
-import type { UserRole } from './user-role';
+import type { UserRole } from '@pujcovna/shared';
+import { Button, EmptyState, ErrorState, LoadingState } from '@pujcovna/ui';
+import { Navigate, Outlet } from 'react-router';
+import { useCurrentUser } from '../hooks/use-current-user';
+import { useSignIn } from '../hooks/use-sign-in';
 import { paths } from '../paths';
+import { getErrorMessage } from '../utils/error-message';
 
 type RequireRoleProps = {
-  children: ReactNode;
   role: UserRole;
 };
 
-export const RequireRole = ({ children, role: requiredRole }: RequireRoleProps) => {
-  const { role } = useRole();
+export const RequireRole = ({ role }: RequireRoleProps) => {
+  const currentUser = useCurrentUser();
+  const signIn = useSignIn();
 
-  if (role === requiredRole) {
-    return children;
+  if (currentUser.isPending) {
+    return <LoadingState />;
   }
 
-  return <Navigate to={paths.accessDenied} replace />;
+  if (currentUser.isError) {
+    return <ErrorState message={getErrorMessage(currentUser.error)} />;
+  }
+
+  if (currentUser.data === null) {
+    return (
+      <EmptyState
+        action={
+          <Button disabled={signIn.isPending} onClick={() => signIn.mutate()}>
+            Přihlásit se
+          </Button>
+        }
+        description="Tato stránka je určena pracovníkům. Přihlaste se svým účtem."
+        title="Přihlaste se"
+      />
+    );
+  }
+
+  if (currentUser.data.role !== role) {
+    return <Navigate replace to={paths.accessDenied} />;
+  }
+
+  return <Outlet />;
 };

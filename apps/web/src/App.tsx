@@ -1,14 +1,10 @@
-import { RouterProvider } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RoleProvider } from './auth/RoleContext';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from 'react-router/dom';
+import { queryClient } from './api/query-client';
 import { router } from './routes';
-
-const queryClient = new QueryClient();
 
 export const App = () => (
   <QueryClientProvider client={queryClient}>
-    <RoleProvider>
-      <RouterProvider router={router} />
-    </RoleProvider>
+    <RouterProvider router={router} />
   </QueryClientProvider>
 );

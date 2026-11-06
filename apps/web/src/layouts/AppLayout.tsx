@@ -1,21 +1,30 @@
-import { Outlet } from 'react-router-dom';
-import { useRole } from '../auth/RoleContext';
+import { AppShell } from '@pujcovna/ui';
+import { Outlet } from 'react-router';
 import { SiteHeader } from '../components/SiteHeader';
+import { useCurrentUser } from '../hooks/use-current-user';
+import { useSignIn } from '../hooks/use-sign-in';
+import { useSignOut } from '../hooks/use-sign-out';
+
+const APP_NAME = 'Půjčovna nářadí';
 
 export const AppLayout = () => {
-  const { role, setRole } = useRole();
+  const currentUser = useCurrentUser();
+  const signIn = useSignIn();
+  const signOut = useSignOut();
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
-      <SiteHeader onRoleChange={setRole} role={role} />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
-        <Outlet />
-      </main>
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-5 text-sm text-slate-500 sm:px-6">
-          Půjčovna nářadí
-        </div>
-      </footer>
-    </div>
+    <AppShell
+      footer={APP_NAME}
+      header={
+        <SiteHeader
+          appName={APP_NAME}
+          currentUser={currentUser.data}
+          onSignIn={() => signIn.mutate()}
+          onSignOut={() => signOut.mutate()}
+        />
+      }
+    >
+      <Outlet />
+    </AppShell>
   );
 };

@@ -26,6 +26,7 @@ export { Input } from './components/input';
 export { Label } from './components/label';
 export { Separator } from './components/separator';
 export { AppShell } from './AppShell';
+export { ConfirmDialog } from './ConfirmDialog';
 export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';
 export { FormInput } from './FormInput';

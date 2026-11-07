@@ -1,6 +1,9 @@
 import {
   authenticatedUserSchema,
   callEndpoint,
+  createCategoryEndpoint,
+  listCategoriesEndpoint,
+  type CreateCategoryBody,
   createPickupLocationEndpoint,
   listPickupLocationsEndpoint,
   type CreatePickupLocationBody,
@@ -35,6 +38,16 @@ export const signIn = async () => {
 export const signOut = async () => {
   await authClient.signOut();
 };
+
+export const getCategories = (signal: AbortSignal) =>
+  callEndpoint(listCategoriesEndpoint, { baseUrl: REFERENCE_DATA_API_BASE_URL, signal });
+
+export const createCategory = async (body: CreateCategoryBody) =>
+  callEndpoint(createCategoryEndpoint, {
+    baseUrl: REFERENCE_DATA_API_BASE_URL,
+    body,
+    headers: await getAuthorizationHeaders(),
+  });
 
 export const getPickupLocations = (signal: AbortSignal) =>
   callEndpoint(listPickupLocationsEndpoint, { baseUrl: REFERENCE_DATA_API_BASE_URL, signal });

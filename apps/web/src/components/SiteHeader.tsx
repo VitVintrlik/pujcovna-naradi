@@ -34,6 +34,11 @@ export const SiteHeader = ({
           Přehled
         </NavLink>
         {currentRole === UserRole.Worker && (
+          <NavLink className={navigationLinkClassName} to={paths.categories}>
+            Kategorie
+          </NavLink>
+        )}
+        {currentRole === UserRole.Worker && (
           <NavLink className={navigationLinkClassName} to={paths.pickupLocations}>
             Výdejní místa
           </NavLink>

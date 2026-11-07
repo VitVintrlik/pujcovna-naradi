@@ -14,6 +14,8 @@ export const createCategoryBodySchema = z.object({
   name: categoryNameSchema,
 });
 
+export type CreateCategoryBody = z.infer<typeof createCategoryBodySchema>;
+
 export const categoryResponseSchema = z.object({
   id: z.uuid(),
   name: z.string(),
